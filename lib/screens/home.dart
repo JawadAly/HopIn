@@ -5,6 +5,7 @@ import './publishrides.dart';
 import './profile.dart';
 import './myrides.dart';
 import './inbox.dart';
+import './login.dart';
 
 //widgets
 import '../widgets/bottomnavigation.dart';
@@ -25,7 +26,8 @@ class _HomeState extends State<Home> {
   }
 
   final List<Widget> _pages = [
-    Searchrides(),
+    // Searchrides(),
+    Login(),
     Publishrides(),
     Myrides(),
     Inbox(),

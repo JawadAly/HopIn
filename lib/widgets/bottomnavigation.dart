@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
 class Bottomnavigation extends StatefulWidget {
-  int navigationIndex;
-  Function navigationIndexModifier;
+  final int navigationIndex;
+  final Function navigationIndexModifier;
   Bottomnavigation({
     required this.navigationIndex,
     required this.navigationIndexModifier,
