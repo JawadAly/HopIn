@@ -7,6 +7,7 @@ class Input extends StatefulWidget {
   final Function changeSenseFunc;
   final Function validatorFunc;
   final int? maxLength;
+  final dynamic? prefIcon;
   Input({
     required this.keyboardType,
     required this.hint,
@@ -14,6 +15,7 @@ class Input extends StatefulWidget {
     required this.changeSenseFunc,
     required this.validatorFunc,
     this.maxLength,
+    this.prefIcon,
   });
 
   @override
@@ -32,6 +34,7 @@ class _InputState extends State<Input> {
       canRequestFocus: true,
       decoration: InputDecoration(
         hintText: widget.hint,
+        prefixIcon: widget.prefIcon,
         hintStyle: TextStyle(color: Colors.grey.shade600),
         filled: true,
         fillColor: Colors.grey.shade200,
