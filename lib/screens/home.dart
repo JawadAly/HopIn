@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 //screens
 import './searchrides.dart';
 import './publishrides.dart';
-import './profile.dart';
+import 'profile/profile.dart';
 import './myrides.dart';
 import './inbox.dart';
-import './login.dart';
+import 'auth/login.dart';
 
 //widgets
 import '../widgets/bottomnavigation.dart';
@@ -27,7 +27,6 @@ class _HomeState extends State<Home> {
 
   final List<Widget> _pages = [
     Searchrides(),
-    // Login(),
     Publishrides(),
     Myrides(),
     Inbox(),
