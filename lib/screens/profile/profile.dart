@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:hopin/screens/profile/about_you.dart';
+import 'package:hopin/screens/profile/about_you/about_you.dart';
 
 class Profile extends StatelessWidget {
+  const Profile({super.key});
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(

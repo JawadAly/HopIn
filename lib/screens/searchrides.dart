@@ -86,109 +86,111 @@ class _SearchridesState extends State<Searchrides> {
               color: Colors.white.withOpacity(0.9),
               // color: Colors.white,
             ), // semi-transparent background
-            child: Form(
-              child: Column(
-                children: [
-                  AnotherInput(
-                    keyboardType: TextInputType.text,
-                    hint: 'Leaving from',
-                    textObscure: false,
-                    controler: TextEditingController(
-                      text: userRideSearchData["Leaving from"],
+            child: SingleChildScrollView(
+              child: Form(
+                child: Column(
+                  children: [
+                    AnotherInput(
+                      keyboardType: TextInputType.text,
+                      hint: 'Leaving from',
+                      textObscure: false,
+                      controler: TextEditingController(
+                        text: userRideSearchData["Leaving from"],
+                      ),
+                      changeSenseFunc: () {},
+                      validatorFunc: () {},
+                      prefIcon: Icon(Icons.circle_outlined),
+                      readType: true,
+                      tapFunc:
+                          (incomingContext) => {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder:
+                                    (context) => LocationProvider(
+                                      dataModifier: modifyUserRideData,
+                                      hintText: 'Leaving from',
+                                    ),
+                              ),
+                            ),
+                          },
                     ),
-                    changeSenseFunc: () {},
-                    validatorFunc: () {},
-                    prefIcon: Icon(Icons.circle_outlined),
-                    readType: true,
-                    tapFunc:
-                        (incomingContext) => {
-                          Navigator.push(
+                    SizedBox(height: 25),
+                    AnotherInput(
+                      keyboardType: TextInputType.text,
+                      hint: 'Going to',
+                      textObscure: false,
+                      controler: TextEditingController(
+                        text: userRideSearchData["Going to"],
+                      ),
+                      changeSenseFunc: () {},
+                      validatorFunc: () {},
+                      prefIcon: Icon(Icons.circle_outlined),
+                      readType: true,
+                      tapFunc:
+                          (incomingContext) => {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder:
+                                    (context) => LocationProvider(
+                                      dataModifier: modifyUserRideData,
+                                      hintText: 'Going to',
+                                    ),
+                              ),
+                            ),
+                          },
+                    ),
+                    SizedBox(height: 25),
+                    AnotherInput(
+                      keyboardType: TextInputType.text,
+                      hint: 'Going to',
+                      textObscure: false,
+                      changeSenseFunc: modifyUserRideData,
+                      validatorFunc: () {},
+                      prefIcon: Icon(Icons.calendar_month_outlined),
+                      tapFunc: _selectDate,
+                      readType: true,
+                      controler: TextEditingController(
+                        text:
+                            selectedDate == null
+                                ? ''
+                                : "${selectedDate!.day}/${selectedDate!.month}/${selectedDate!.year}",
+                      ),
+                    ),
+                    SizedBox(height: 25),
+                    AnotherInput(
+                      keyboardType: TextInputType.text,
+                      hint: 'No. of Passengers',
+                      textObscure: false,
+                      changeSenseFunc: () {},
+                      validatorFunc: () {},
+                      prefIcon: Icon(Icons.person_outline),
+                      tapFunc:
+                          (incomingContext) => Navigator.push(
                             context,
                             MaterialPageRoute(
                               builder:
-                                  (context) => LocationProvider(
-                                    dataModifier: modifyUserRideData,
-                                    hintText: 'Leaving from',
+                                  (context) => Seatscounter(
+                                    countModifierFunc: modifyUserRideData,
+                                    hintVal: "No. of Passengers",
+                                    initialPCount:
+                                        userRideSearchData["No. of Passengers"],
                                   ),
                             ),
                           ),
-                        },
-                  ),
-                  SizedBox(height: 25),
-                  AnotherInput(
-                    keyboardType: TextInputType.text,
-                    hint: 'Going to',
-                    textObscure: false,
-                    controler: TextEditingController(
-                      text: userRideSearchData["Going to"],
+                      readType: true,
                     ),
-                    changeSenseFunc: () {},
-                    validatorFunc: () {},
-                    prefIcon: Icon(Icons.circle_outlined),
-                    readType: true,
-                    tapFunc:
-                        (incomingContext) => {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder:
-                                  (context) => LocationProvider(
-                                    dataModifier: modifyUserRideData,
-                                    hintText: 'Going to',
-                                  ),
-                            ),
-                          ),
-                        },
-                  ),
-                  SizedBox(height: 25),
-                  AnotherInput(
-                    keyboardType: TextInputType.text,
-                    hint: 'Going to',
-                    textObscure: false,
-                    changeSenseFunc: modifyUserRideData,
-                    validatorFunc: () {},
-                    prefIcon: Icon(Icons.calendar_month_outlined),
-                    tapFunc: _selectDate,
-                    readType: true,
-                    controler: TextEditingController(
-                      text:
-                          selectedDate == null
-                              ? ''
-                              : "${selectedDate!.day}/${selectedDate!.month}/${selectedDate!.year}",
+                    SizedBox(height: 25),
+                    SizedBox(
+                      width: double.infinity,
+                      child: FilledButton(
+                        onPressed: () => print(userRideSearchData),
+                        child: Text('Search'),
+                      ),
                     ),
-                  ),
-                  SizedBox(height: 25),
-                  AnotherInput(
-                    keyboardType: TextInputType.text,
-                    hint: 'No. of Passengers',
-                    textObscure: false,
-                    changeSenseFunc: () {},
-                    validatorFunc: () {},
-                    prefIcon: Icon(Icons.person_outline),
-                    tapFunc:
-                        (incomingContext) => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder:
-                                (context) => Seatscounter(
-                                  countModifierFunc: modifyUserRideData,
-                                  hintVal: "No. of Passengers",
-                                  initialPCount:
-                                      userRideSearchData["No. of Passengers"],
-                                ),
-                          ),
-                        ),
-                    readType: true,
-                  ),
-                  SizedBox(height: 25),
-                  SizedBox(
-                    width: double.infinity,
-                    child: FilledButton(
-                      onPressed: () => print(userRideSearchData),
-                      child: Text('Search'),
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),

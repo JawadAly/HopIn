@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "903081471302",
+    "project_id": "hopin-a429e",
+    "storage_bucket": "hopin-a429e.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:903081471302:android:51496494d398d399494947",
+        "android_client_info": {
+          "package_name": "com.example.hopin"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBoVVZZ592ANtbDX8nvArRWzMj2bSeBcd8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
