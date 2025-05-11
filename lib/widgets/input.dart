@@ -7,8 +7,9 @@ class Input extends StatefulWidget {
   final Function changeSenseFunc;
   final Function validatorFunc;
   final int? maxLength;
-  final dynamic? prefIcon;
-  Input({
+  final dynamic prefIcon;
+  const Input({
+    super.key,
     required this.keyboardType,
     required this.hint,
     required this.textObscure,

@@ -1,19 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:hopin/data/providers/user_info_provider.dart';
+import 'package:provider/provider.dart';
 import './screens/spashscreen.dart';
-import 'screens/auth/sign_up/sign_up.dart';
-import 'screens/auth/sign_up/sign_up_email.dart';
-import 'screens/auth/sign_up/sign_up_name.dart';
-import 'screens/auth/sign_up/sign_up_dob.dart';
-import 'screens/auth/sign_up/sign_up_password.dart';
-import 'screens/auth/login.dart';
-import 'screens/home.dart';
+import 'routes/app_routes.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(MyApp());
 }
 
 class MyApp extends StatefulWidget {
+  const MyApp({super.key});
   @override
   State<StatefulWidget> createState() {
     return MyAppState();
@@ -23,25 +24,22 @@ class MyApp extends StatefulWidget {
 class MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'HopIn',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Color.fromARGB(255, 110, 78, 163),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => UserInfoProvider()),
+      ],
+      child: MaterialApp(
+        title: 'HopIn',
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: Color.fromARGB(255, 110, 78, 163),
+          ),
+          textTheme: GoogleFonts.poppinsTextTheme(),
         ),
-        textTheme: GoogleFonts.poppinsTextTheme(),
+        home: Splashscreen(),
+        onGenerateRoute: generateRoute,
       ),
-      home: Splashscreen(),
-      routes: {
-        '/sign_up': (context) => SignUp(),
-        '/sign_up/email': (context) => SignUpEmail(),
-        '/sign_up/name': (context) => SignUpName(),
-        '/sign_up/dob': (context) => SignUpDob(),
-        '/sign_up/password': (context) => SignUpPassword(),
-        '/login': (context) => Login(),
-        '/home': (context) => Home(),
-      },
     );
   }
 }

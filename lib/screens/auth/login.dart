@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:hopin/screens/auth/auth_service.dart';
 import '../../widgets/input.dart';
 import 'package:hopin/widgets/button.dart';
 
 class Login extends StatefulWidget {
+  const Login({super.key});
   @override
   State<StatefulWidget> createState() {
     return LoginState();
@@ -65,8 +67,29 @@ class LoginState extends State<Login> {
                   SizedBox(height: 20),
                   CustomButton(
                     text: "Login",
-                    onPressed: () {
-                      Navigator.popAndPushNamed(context, '/home');
+                    onPressed: () async {
+                      if (_userLoginGlobalKey.currentState!.validate()) {
+                        try {
+                          final userCredential = await authService.value.signIn(
+                            email: loginUserCreds["Email"]!,
+                            password: loginUserCreds["Password"]!,
+                          );
+
+                          if (userCredential.user != null) {
+                            if (!context.mounted) return;
+                            Navigator.pushReplacementNamed(context, '/home');
+                          } else {
+                            if (!context.mounted) return;
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text("Login failed")),
+                            );
+                          }
+                        } catch (error) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text("Login failed: $error")),
+                          );
+                        }
+                      }
                     },
                   ),
                 ],

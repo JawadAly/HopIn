@@ -12,6 +12,14 @@ class _SignUpDobState extends State<SignUpDob> {
   DateTime? selectedDate;
   final TextEditingController _dateController = TextEditingController();
 
+  final _formKey = GlobalKey<FormState>();
+
+  @override
+  void dispose() {
+    _dateController.dispose();
+    super.dispose();
+  }
+
   Future<void> _pickDate() async {
     final DateTime? date = await showDatePicker(
       context: context,
@@ -33,46 +41,51 @@ class _SignUpDobState extends State<SignUpDob> {
       appBar: AppBar(),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
-        child: Column(
-          children: [
-            Align(
-              alignment: Alignment.centerLeft,
-              child: const Text(
-                "What's your date of birth?",
-                style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
-              ),
-            ),
-            const SizedBox(height: 20),
-            TextFormField(
-              controller: _dateController,
-              readOnly: true,
-              onTap: _pickDate,
-              decoration: InputDecoration(
-                hintText: "dd/mm/yyyy",
-                filled: true,
-                fillColor: Colors.grey.shade200,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(20),
-                  borderSide: BorderSide.none,
+        child: Form(
+          key: _formKey,
+          child: Column(
+            children: [
+              Align(
+                alignment: Alignment.centerLeft,
+                child: const Text(
+                  "What's your date of birth?",
+                  style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
                 ),
               ),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please select your date of birth';
-                }
-                return null;
-              },
-            ),
-            const Spacer(),
-            Align(
-              alignment: Alignment.bottomRight,
-              child: Fab(
-                onPressed: () {
-                  Navigator.pushNamed(context, '/sign_up/password');
+              const SizedBox(height: 20),
+              TextFormField(
+                controller: _dateController,
+                readOnly: true,
+                onTap: _pickDate,
+                decoration: InputDecoration(
+                  hintText: "dd/mm/yyyy",
+                  filled: true,
+                  fillColor: Colors.grey.shade200,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(20),
+                    borderSide: BorderSide.none,
+                  ),
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please select your date of birth';
+                  }
+                  return null;
                 },
               ),
-            ),
-          ],
+              const Spacer(),
+              Align(
+                alignment: Alignment.bottomRight,
+                child: Fab(
+                  onPressed: () {
+                    if (_formKey.currentState!.validate()) {
+                      Navigator.pushNamed(context, '/sign_up/password');
+                    }
+                  },
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

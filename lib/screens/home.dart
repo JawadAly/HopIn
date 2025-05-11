@@ -4,8 +4,7 @@ import './searchrides.dart';
 import './publishrides.dart';
 import 'profile/profile.dart';
 import './myrides.dart';
-import './inbox.dart';
-import 'auth/login.dart';
+import 'inbox/inbox.dart';
 
 //widgets
 import '../widgets/bottomnavigation.dart';
