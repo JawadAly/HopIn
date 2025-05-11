@@ -1,5 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:hopin/screens/publishjourney/passengercounter.dart';
+import 'package:hopin/screens/publishjourney/traveldate.dart';
+import 'package:hopin/screens/publishjourney/traveltime.dart';
+import 'package:toastification/toastification.dart';
+import 'package:hopin/screens/publishjourney/dropoff.dart';
+import 'package:hopin/screens/publishjourney/pickup.dart';
+import 'package:hopin/screens/publishjourney/publishridemodel.dart';
+import 'package:hopin/screens/publishjourney/routedecider.dart';
+import 'package:provider/provider.dart';
 import './screens/spashscreen.dart';
 import 'screens/auth/sign_up/sign_up.dart';
 import 'screens/auth/sign_up/sign_up_email.dart';
@@ -10,7 +19,12 @@ import 'screens/auth/login.dart';
 import 'screens/home.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(
+    MultiProvider(
+      providers: [ChangeNotifierProvider(create: (_) => Publishridemodel())],
+      child: ToastificationWrapper(child: MyApp()),
+    ),
+  );
 }
 
 class MyApp extends StatefulWidget {
@@ -34,6 +48,14 @@ class MyAppState extends State<MyApp> {
       ),
       home: Splashscreen(),
       routes: {
+        //publish-rides routes
+        '/publishride': (context) => Pickup(),
+        '/publishride/dropoff': (context) => Dropoff(),
+        '/publishride/routedecider': (context) => Routedecider(),
+        '/publishride/traveldate': (context) => Traveldate(),
+        '/publishride/traveltime': (context) => Traveltime(),
+        '/publishride/passengercounter': (context) => Passengercounter(),
+        //sign-up journey routes
         '/sign_up': (context) => SignUp(),
         '/sign_up/email': (context) => SignUpEmail(),
         '/sign_up/name': (context) => SignUpName(),

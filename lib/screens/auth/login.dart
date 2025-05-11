@@ -66,7 +66,9 @@ class LoginState extends State<Login> {
                   CustomButton(
                     text: "Login",
                     onPressed: () {
-                      Navigator.popAndPushNamed(context, '/home');
+                      if (_userLoginGlobalKey.currentState!.validate()) {
+                        Navigator.popAndPushNamed(context, '/home');
+                      }
                     },
                   ),
                 ],
