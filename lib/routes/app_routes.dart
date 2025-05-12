@@ -1,4 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:hopin/screens/publishjourney/dropoff.dart';
+import 'package:hopin/screens/publishjourney/passengercounter.dart';
+import 'package:hopin/screens/publishjourney/pickup.dart';
+import 'package:hopin/screens/publishjourney/routedecider.dart';
+import 'package:hopin/screens/publishjourney/traveldate.dart';
+import 'package:hopin/screens/publishjourney/traveltime.dart';
 import '../screens/inbox/chat.dart';
 import '../screens/auth/sign_up/sign_up.dart';
 import '../screens/auth/sign_up/sign_up_email.dart';
@@ -14,6 +20,19 @@ import '../screens/profile/about_you/add_vehicle.dart';
 
 Route<dynamic>? generateRoute(RouteSettings settings) {
   switch (settings.name) {
+    case '/publishride':
+      return MaterialPageRoute(builder: (_) => Pickup());
+    case '/publishride/dropoff':
+      return MaterialPageRoute(builder: (_) => Dropoff());
+    case '/publishride/routedecider':
+      return MaterialPageRoute(builder: (_) => Routedecider());
+    case '/publishride/traveldate':
+      return MaterialPageRoute(builder: (_) => Traveldate());
+    case '/publishride/traveltime':
+      return MaterialPageRoute(builder: (_) => Traveltime());
+    case '/publishride/passengercounter':
+      return MaterialPageRoute(builder: (_) => Passengercounter());
+
     case '/sign_up':
       return MaterialPageRoute(builder: (_) => SignUp());
     case '/sign_up/email':

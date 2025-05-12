@@ -8,8 +8,11 @@ class Input extends StatefulWidget {
   final Function validatorFunc;
   final int? maxLength;
   final dynamic prefIcon;
-  const Input({
-    super.key,
+  final dynamic tapFunc;
+  final bool? readType;
+  final dynamic controler;
+  final dynamic submitionFunc;
+  Input({
     required this.keyboardType,
     required this.hint,
     required this.textObscure,
@@ -17,6 +20,10 @@ class Input extends StatefulWidget {
     required this.validatorFunc,
     this.maxLength,
     this.prefIcon,
+    this.tapFunc,
+    this.readType,
+    this.controler,
+    this.submitionFunc,
   });
 
   @override
@@ -29,9 +36,13 @@ class _InputState extends State<Input> {
     return TextFormField(
       keyboardType: widget.keyboardType,
       obscureText: widget.textObscure,
+      onFieldSubmitted: widget.submitionFunc,
+      readOnly: widget.readType ?? false,
       maxLength: widget.maxLength,
+      controller: widget.controler,
       onChanged: (value) => widget.changeSenseFunc(widget.hint, value),
       validator: (value) => widget.validatorFunc(value),
+      onTap: widget.tapFunc != null ? () => widget.tapFunc!(context) : null,
       canRequestFocus: true,
       decoration: InputDecoration(
         hintText: widget.hint,
