@@ -7,12 +7,13 @@ class AnotherInput extends StatefulWidget {
   final Function changeSenseFunc;
   final Function validatorFunc;
   final int? maxLength;
-  final dynamic? prefIcon;
-  final dynamic? initialVal;
-  final dynamic? tapFunc;
+  final dynamic prefIcon;
+  final dynamic initialVal;
+  final dynamic tapFunc;
   final bool readType;
-  final dynamic? controler;
-  AnotherInput({
+  final dynamic controler;
+  const AnotherInput({
+    super.key,
     required this.keyboardType,
     required this.hint,
     required this.textObscure,

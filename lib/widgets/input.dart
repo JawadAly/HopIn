@@ -12,7 +12,8 @@ class Input extends StatefulWidget {
   final bool? readType;
   final dynamic controler;
   final dynamic submitionFunc;
-  Input({
+  const Input({
+    super.key,
     required this.keyboardType,
     required this.hint,
     required this.textObscure,

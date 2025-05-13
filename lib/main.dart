@@ -4,10 +4,10 @@ import 'package:hopin/data/providers/user_info_provider.dart';
 import 'package:provider/provider.dart';
 import './screens/spashscreen.dart';
 import 'package:hopin/screens/publishjourney/publishridemodel.dart';
-
 import 'routes/app_routes.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
+import 'package:toastification/toastification.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

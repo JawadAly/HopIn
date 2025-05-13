@@ -6,6 +6,8 @@ import 'package:hopin/widgets/locationprovider.dart';
 import 'package:provider/provider.dart';
 
 class Pickup extends StatefulWidget {
+  const Pickup({super.key});
+
   @override
   State<StatefulWidget> createState() {
     return _PickupState();

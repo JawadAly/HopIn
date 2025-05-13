@@ -4,8 +4,9 @@ class Seatscounter extends StatefulWidget {
   final int? initialPCount;
   final Function? countModifierFunc;
   final String? hintVal;
-  final dynamic? controler;
-  Seatscounter({
+  final dynamic controler;
+  const Seatscounter({
+    super.key,
     this.initialPCount,
     this.countModifierFunc,
     this.hintVal,

@@ -4,6 +4,8 @@ import 'package:hopin/widgets/locationprovider.dart';
 import 'package:hopin/widgets/seatsCounter.dart';
 
 class Searchrides extends StatefulWidget {
+  const Searchrides({super.key});
+
   @override
   State<StatefulWidget> createState() {
     return _SearchridesState();

@@ -113,9 +113,9 @@ class _RoutedeciderState extends State<Routedecider> {
       googleApiKey: googleApiKey,
     );
     if (result.points.isNotEmpty) {
-      result.points.forEach((PointLatLng point) {
+      for (var point in result.points) {
         polylineCoords.add(LatLng(point.latitude, point.longitude));
-      });
+      }
     } else {
       showCustomToast(
         "Error",

@@ -44,7 +44,7 @@ class _TraveltimeState extends State<Traveltime> {
             ),
             SizedBox(height: 30),
             Center(
-              child: Container(
+              child: SizedBox(
                 width: MediaQuery.of(context).size.width * 0.6,
                 child: Form(
                   key: _selectedTimeGKey,

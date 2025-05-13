@@ -7,6 +7,8 @@ import 'package:hopin/widgets/locationprovider.dart';
 import 'package:provider/provider.dart';
 
 class Dropoff extends StatefulWidget {
+  const Dropoff({super.key});
+
   @override
   State<Dropoff> createState() => _DropoffState();
 }
@@ -86,6 +88,5 @@ class _DropoffState extends State<Dropoff> {
         ),
       ),
     );
-    ;
   }
 }

@@ -5,6 +5,8 @@ import 'package:hopin/screens/publishjourney/traveldate.dart';
 import 'package:provider/provider.dart';
 
 class PublishridesWrapper extends StatelessWidget {
+  const PublishridesWrapper({super.key});
+
   // List<Widget> publishJournyWidgets = [
   //   Pickup(),
   //   Dropoff(),

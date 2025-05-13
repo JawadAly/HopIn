@@ -10,6 +10,8 @@ import 'inbox/inbox.dart';
 import '../widgets/bottomnavigation.dart';
 
 class Home extends StatefulWidget {
+  const Home({super.key});
+
   @override
   State<StatefulWidget> createState() {
     return _HomeState();

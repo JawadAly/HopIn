@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 class Bottomnavigation extends StatefulWidget {
   final int navigationIndex;
   final Function navigationIndexModifier;
-  Bottomnavigation({
+  const Bottomnavigation({
+    super.key,
     required this.navigationIndex,
     required this.navigationIndexModifier,
   });

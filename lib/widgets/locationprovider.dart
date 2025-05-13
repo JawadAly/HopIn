@@ -19,7 +19,8 @@ class LocationProvider extends StatefulWidget {
   final String hintText;
   final dynamic controler;
   final dynamic submitionFunc;
-  LocationProvider({
+  const LocationProvider({
+    super.key,
     this.dataModifier,
     required this.hintText,
     this.controler,
@@ -79,27 +80,27 @@ class _LocationProviderState extends State<LocationProvider> {
   fetchCurrentLocation() async {
     Location currentLoc = Location();
 
-    bool _serviceEnabled;
-    PermissionStatus _permissionGranted;
-    LocationData _locationData;
+    bool serviceEnabled;
+    PermissionStatus permissionGranted;
+    LocationData locationData;
 
     //checking wether these services are enabled\
-    _serviceEnabled = await currentLoc.serviceEnabled();
-    if (!_serviceEnabled) {
-      _serviceEnabled = await currentLoc.requestService();
-      if (!_serviceEnabled) {
+    serviceEnabled = await currentLoc.serviceEnabled();
+    if (!serviceEnabled) {
+      serviceEnabled = await currentLoc.requestService();
+      if (!serviceEnabled) {
         return;
       }
     }
-    _permissionGranted = await currentLoc.hasPermission();
-    if (_permissionGranted == PermissionStatus.denied) {
-      _permissionGranted = await currentLoc.requestPermission();
-      if (_permissionGranted == PermissionStatus.denied) {
+    permissionGranted = await currentLoc.hasPermission();
+    if (permissionGranted == PermissionStatus.denied) {
+      permissionGranted = await currentLoc.requestPermission();
+      if (permissionGranted == PermissionStatus.denied) {
         return;
       }
     }
 
-    if (_permissionGranted == PermissionStatus.deniedForever) {
+    if (permissionGranted == PermissionStatus.deniedForever) {
       // Show a dialog or redirect to settings
       showDialog(
         context: context,
@@ -127,7 +128,7 @@ class _LocationProviderState extends State<LocationProvider> {
       return;
     }
 
-    _locationData = await currentLoc.getLocation();
+    locationData = await currentLoc.getLocation();
     // print(_locationData);
     // generateAddressFromCoords(_locationData);
 
@@ -137,7 +138,7 @@ class _LocationProviderState extends State<LocationProvider> {
         context,
         listen: false,
       ).updateDropoffLocCoord(
-        LatLng(_locationData.latitude!, _locationData.longitude!),
+        LatLng(locationData.latitude!, locationData.longitude!),
       );
       Navigator.pushNamed(context, '/publishride/routedecider');
     } else {
@@ -145,7 +146,7 @@ class _LocationProviderState extends State<LocationProvider> {
         context,
         listen: false,
       ).updatePickupLocCoord(
-        LatLng(_locationData.latitude!, _locationData.longitude!),
+        LatLng(locationData.latitude!, locationData.longitude!),
       );
       Navigator.pushNamed(context, '/publishride/dropoff');
     }
