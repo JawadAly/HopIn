@@ -80,6 +80,7 @@ flutter:
     - assets\images\profile_picture.jpg
     - assets\images\searchPageBgImage.jpg
     - assets\images\anotherSearchBg.jpg  
+    - assets\images\journeyCompletionImage.png  
   
 
   # An image asset can refer to one or more resolution-specific "variants", see

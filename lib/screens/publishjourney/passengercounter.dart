@@ -132,6 +132,7 @@ class _PassengercounterState extends State<Passengercounter> {
                     context,
                     listen: false,
                   ).updatePassengerCount(passengerCount);
+                  Navigator.pushNamed(context, '/publishride/pricing');
                 },
               ),
             ),

@@ -1,1 +1,1 @@
-const googleApiKey = "AIzaSyCOgopq0a56DxB5YR6KrZVLiaTG0Lj9MUo";
+const googleApiKey = "AIzaSyDka4PPf7zeibyuQF8ljeTVVUsf3rCOK4o";

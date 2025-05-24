@@ -68,7 +68,7 @@ class _PickupState extends State<Pickup> {
                         MaterialPageRoute(
                           builder:
                               (context) => LocationProvider(
-                                hintText: "Enter the full address",
+                                hintText: "Enter pick up location",
                                 dataModifier: updatepickUpDest,
                                 controler: _pickUpDestControler,
                                 submitionFunc: (_) => Navigator.pop(context),

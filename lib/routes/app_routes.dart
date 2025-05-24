@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:hopin/screens/publishjourney/dropoff.dart';
+import 'package:hopin/screens/publishjourney/journeyfinalizer.dart';
 import 'package:hopin/screens/publishjourney/passengercounter.dart';
 import 'package:hopin/screens/publishjourney/pickup.dart';
+import 'package:hopin/screens/publishjourney/pricing.dart';
 import 'package:hopin/screens/publishjourney/routedecider.dart';
 import 'package:hopin/screens/publishjourney/traveldate.dart';
 import 'package:hopin/screens/publishjourney/traveltime.dart';
@@ -32,6 +34,10 @@ Route<dynamic>? generateRoute(RouteSettings settings) {
       return MaterialPageRoute(builder: (_) => Traveltime());
     case '/publishride/passengercounter':
       return MaterialPageRoute(builder: (_) => Passengercounter());
+    case '/publishride/pricing':
+      return MaterialPageRoute(builder: (_) => Pricing());
+    case '/publishride/finalize':
+      return MaterialPageRoute(builder: (_) => Journeyfinalizer());
 
     case '/sign_up':
       return MaterialPageRoute(builder: (_) => SignUp());

@@ -64,7 +64,7 @@ class _DropoffState extends State<Dropoff> {
                                 dropOffLoc = incomingVal;
                               });
                             },
-                            hintText: "Drop-ff Location",
+                            hintText: "Enter drop off location",
                             controler: dropOffController,
                             submitionFunc: (_) => Navigator.pop(context),
                           ),

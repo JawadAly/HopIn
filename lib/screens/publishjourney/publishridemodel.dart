@@ -9,9 +9,14 @@ class Publishridemodel extends ChangeNotifier {
   DateTime? travelDate;
   String? travelTime;
   int? passengerCount;
+  int? seatPrice;
   void updatePickupLoc(String newVal) {
     _pickupLocation = newVal;
     notifyListeners();
+  }
+
+  String? getPickUpLoc() {
+    return _pickupLocation;
   }
 
   void updatePickupLocCoord(LatLng newVal) {
@@ -19,8 +24,8 @@ class Publishridemodel extends ChangeNotifier {
     notifyListeners();
   }
 
-  LatLng getPickupLocCoords() {
-    return _pickupLocationCoordinates!;
+  LatLng? getPickupLocCoords() {
+    return _pickupLocationCoordinates;
   }
 
   void updateDropoffLoc(String newVal) {
@@ -28,13 +33,17 @@ class Publishridemodel extends ChangeNotifier {
     notifyListeners();
   }
 
+  String? getDropOffLoc() {
+    return _dropOffLocation;
+  }
+
   void updateDropoffLocCoord(LatLng newVal) {
     _dropOffLocationCoordinates = newVal;
     notifyListeners();
   }
 
-  LatLng getDropoffLocCoords() {
-    return _dropOffLocationCoordinates!;
+  LatLng? getDropoffLocCoords() {
+    return _dropOffLocationCoordinates;
   }
 
   Set<Marker> getMarkerSet() {
@@ -54,13 +63,25 @@ class Publishridemodel extends ChangeNotifier {
 
   void updateTravelDate(DateTime incomingDataTime) {
     travelDate = incomingDataTime;
+    notifyListeners();
   }
 
   void updateTravelTime(String incomingVal) {
     travelTime = incomingVal;
+    notifyListeners();
   }
 
   void updatePassengerCount(int incomingVal) {
     passengerCount = incomingVal;
+    notifyListeners();
+  }
+
+  void updateSeatPrice(int newVal) {
+    seatPrice = newVal;
+    notifyListeners();
+  }
+
+  int? getSeatPrice() {
+    return seatPrice;
   }
 }

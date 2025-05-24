@@ -31,7 +31,7 @@ class LocationProvider extends StatefulWidget {
 }
 
 class _LocationProviderState extends State<LocationProvider> {
-  final String placesApiKey = "AIzaSyCOgopq0a56DxB5YR6KrZVLiaTG0Lj9MUo";
+  final String placesApiKey = "AIzaSyDka4PPf7zeibyuQF8ljeTVVUsf3rCOK4o";
   var uuid = Uuid();
   String? _sessionToken;
   List<dynamic> placesList = [];
@@ -49,33 +49,39 @@ class _LocationProviderState extends State<LocationProvider> {
     getSuggestions(widget.controler.text);
   }
 
-  void getSuggestions(String userInput) {
-    setState(() {
-      placesList =
-          incomingCities.placesList.where((place) {
-            return place.toLowerCase().contains(userInput.toLowerCase());
-          }).toList();
-    });
-    print(placesList);
-  }
-
-  // void getSuggestions(String input) async {
-  //   const String countryComponent = 'country:pk';
-  //   const String karachiLocation = '24.8607,67.0011';
-  //   String baseURL =
-  //       'https://maps.googleapis.com/maps/api/place/autocomplete/json';
-  //   String request =
-  //       '$baseURL?input=$input&key=$placesApiKey&sessiontoken=$_sessionToken&components=$countryComponent&location=$karachiLocation';
-  //   var response = await http.get(Uri.parse(request));
-  //   print(response.body.toString());
-  //   if (response.statusCode == 200) {
-  //     setState(() {
-  //       placesList = jsonDecode(response.body.toString())["predictions"];
-  //     });
-  //   } else {
-  //     throw Exception('Failed to Load Places from Google Places API!');
-  //   }
+  // void getSuggestions(String userInput) {
+  //   setState(() {
+  //     placesList =
+  //         incomingCities.placesList.where((place) {
+  //           return place.toLowerCase().contains(userInput.toLowerCase());
+  //         }).toList();
+  //   });
+  //   print(placesList);
   // }
+
+  void getSuggestions(String input) async {
+    const String countryComponent = 'country:pk';
+    const String karachiLocation = '24.8607,67.0011';
+    String baseURL =
+        'https://maps.googleapis.com/maps/api/place/autocomplete/json';
+    String request =
+        '$baseURL?input=$input&key=$placesApiKey&sessiontoken=$_sessionToken&components=$countryComponent&location=$karachiLocation';
+    var response = await http.get(Uri.parse(request));
+    // print(response.body.toString());
+    if (response.statusCode == 200) {
+      var data = jsonDecode(response.body);
+      List predictions = data["predictions"];
+      setState(() {
+        placesList =
+            predictions.map((item) {
+              // return item["structured_formatting"]["main_text"];
+              return item["description"];
+            }).toList();
+      });
+    } else {
+      throw Exception('Failed to Load Places from Google Places API!');
+    }
+  }
 
   fetchCurrentLocation() async {
     Location currentLoc = Location();
@@ -83,6 +89,10 @@ class _LocationProviderState extends State<LocationProvider> {
     bool serviceEnabled;
     PermissionStatus permissionGranted;
     LocationData locationData;
+    final publishRidesProvider = Provider.of<Publishridemodel>(
+      context,
+      listen: false,
+    );
 
     //checking wether these services are enabled\
     serviceEnabled = await currentLoc.serviceEnabled();
@@ -133,25 +143,71 @@ class _LocationProviderState extends State<LocationProvider> {
     // generateAddressFromCoords(_locationData);
 
     //setting current locationData
-    if (widget.hintText == "Drop-ff Location") {
-      Provider.of<Publishridemodel>(
-        context,
-        listen: false,
-      ).updateDropoffLocCoord(
+    if (widget.hintText == "Enter drop off location") {
+      publishRidesProvider.updateDropoffLocCoord(
+        LatLng(locationData.latitude!, locationData.longitude!),
+      );
+      await executeReverseGeoCoding(
+        true,
         LatLng(locationData.latitude!, locationData.longitude!),
       );
       Navigator.pushNamed(context, '/publishride/routedecider');
     } else {
-      Provider.of<Publishridemodel>(
-        context,
-        listen: false,
-      ).updatePickupLocCoord(
+      publishRidesProvider.updatePickupLocCoord(
+        LatLng(locationData.latitude!, locationData.longitude!),
+      );
+      await executeReverseGeoCoding(
+        false,
         LatLng(locationData.latitude!, locationData.longitude!),
       );
       Navigator.pushNamed(context, '/publishride/dropoff');
     }
+  }
 
-    // print(incomingAddress);
+  void getAndUpdateLatLngs(String incomingAddress) async {
+    final publishRidesProvider = Provider.of<Publishridemodel>(
+      context,
+      listen: false,
+    );
+    LatLng? incomingLoc = await getLocLatLngs(incomingAddress);
+    if (incomingLoc == null) {
+      return;
+    }
+    // print(incomingLoc);
+    // print(widget.hintText);
+    if (widget.hintText == "Enter drop off location") {
+      publishRidesProvider.updateDropoffLocCoord(incomingLoc);
+      publishRidesProvider.updateDropoffLoc(incomingAddress);
+    } else {
+      publishRidesProvider.updatePickupLocCoord(incomingLoc);
+      publishRidesProvider.updatePickupLoc(incomingAddress);
+    }
+  }
+
+  Future<void> executeReverseGeoCoding(bool isDropOff, LatLng coords) async {
+    final publishRidesProvider = Provider.of<Publishridemodel>(
+      context,
+      listen: false,
+    );
+    try {
+      var result = await getLocAddress(coords);
+      if (result == null) {
+        showCustomToast(
+          "Error!",
+          "Locations Serivces down try again later",
+          ToastificationType.error,
+        );
+        return;
+      }
+      print(result);
+      if (isDropOff) {
+        publishRidesProvider.updateDropoffLoc(result);
+      } else {
+        publishRidesProvider.updatePickupLoc(result);
+      }
+    } catch (e) {
+      showCustomToast("Error!", e.toString(), ToastificationType.error);
+    }
   }
 
   // void generateAddressFromCoords(LocationData incomingLocData) async {
@@ -241,9 +297,12 @@ class _LocationProviderState extends State<LocationProvider> {
                     children: [
                       ListTile(
                         onTap:
-                            () =>
-                                widget.controler.text =
-                                    placesList[index].toString(),
+                            () => {
+                              widget.controler.text =
+                                  placesList[index].toString(),
+                              getAndUpdateLatLngs(placesList[index].toString()),
+                            },
+
                         // title: Text(placesList[index]['description']),
                         title: Text(placesList[index].toString()),
                         trailing: Icon(

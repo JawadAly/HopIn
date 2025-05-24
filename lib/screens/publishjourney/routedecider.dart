@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:hopin/widgets/fab.dart';
 import 'package:hopin/widgets/toastprovider.dart';
 import 'package:http/http.dart' as http;
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -40,12 +41,15 @@ class _RoutedeciderState extends State<Routedecider> {
   LatLng? _sourceCrds;
   LatLng? _destCrds;
 
+  String? source;
+  String? destination;
+
   @override
   void initState() {
     super.initState();
     // Wait for a short time to ensure the map has initialized
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await initializeMarkers().then((_) async {
+      await initializeMarkersAndRoute().then((_) async {
         await getPolylinePoints().then((incomingCoordinates) {
           generatePolylineOnMap(incomingCoordinates);
         });
@@ -56,21 +60,27 @@ class _RoutedeciderState extends State<Routedecider> {
     });
   }
 
-  Future<void> initializeMarkers() async {
-    _markers = _mark;
-    // final publishRidesModel = Provider.of<Publishridemodel>(
-    //   context,
-    //   listen: false,
-    // );
-    // final incomingMarkers = publishRidesModel.getMarkerSet();
-    // final incomingSourceCoords = publishRidesModel.getPickupLocCoords();
-    // final incomingDestCoords = publishRidesModel.getDropoffLocCoords();
+  Future<void> initializeMarkersAndRoute() async {
     // setState(() {
-    //   _markers = incomingMarkers;
-    //   _sourceCrds = incomingSourceCoords;
-    //   _destCrds = incomingDestCoords;
+    //   _markers = _mark;
     // });
-    // return;
+    final publishRidesModel = Provider.of<Publishridemodel>(
+      context,
+      listen: false,
+    );
+    final incomingMarkers = publishRidesModel.getMarkerSet();
+    final incomingSourceCoords = publishRidesModel.getPickupLocCoords();
+    final incomingDestCoords = publishRidesModel.getDropoffLocCoords();
+    final incomingSrc = publishRidesModel.getPickUpLoc();
+    final incomingDest = publishRidesModel.getDropOffLoc();
+    setState(() {
+      _markers = incomingMarkers;
+      _sourceCrds = incomingSourceCoords;
+      _destCrds = incomingDestCoords;
+      source = incomingSrc;
+      destination = incomingDest;
+    });
+    return;
   }
 
   void _fitMapToMarkers() async {
@@ -104,10 +114,10 @@ class _RoutedeciderState extends State<Routedecider> {
     PolylinePoints polylinePoints = PolylinePoints();
     PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
       request: PolylineRequest(
-        // origin: PointLatLng(_sourceCrds!.latitude, _sourceCrds!.longitude),
-        // destination: PointLatLng(_destCrds!.latitude, _destCrds!.longitude),
-        origin: PointLatLng(_sourceCoords.latitude, _sourceCoords.longitude),
-        destination: PointLatLng(_destCoords.latitude, _destCoords.longitude),
+        origin: PointLatLng(_sourceCrds!.latitude, _sourceCrds!.longitude),
+        destination: PointLatLng(_destCrds!.latitude, _destCrds!.longitude),
+        // origin: PointLatLng(_sourceCoords.latitude, _sourceCoords.longitude),
+        // destination: PointLatLng(_destCoords.latitude, _destCoords.longitude),
         mode: TravelMode.driving,
       ),
       googleApiKey: googleApiKey,
@@ -123,6 +133,7 @@ class _RoutedeciderState extends State<Routedecider> {
         ToastificationType.error,
       );
     }
+    print(polylineCoords);
     return polylineCoords;
   }
 
@@ -162,10 +173,9 @@ class _RoutedeciderState extends State<Routedecider> {
             left: 8,
             child: Backiconbtn(
               incomingContext: context,
-              btnColor: Colors.white,
+              btnColor: Colors.purple.shade400,
             ),
           ),
-          // Resizable bottom sheet
           DraggableScrollableSheet(
             initialChildSize: 0.3, // Initial size (30% of screen)
             minChildSize: 0.1, // Minimum size
@@ -192,14 +202,32 @@ class _RoutedeciderState extends State<Routedecider> {
                       ),
                     ),
                     ListTile(
-                      title: Text("Location A"),
-                      subtitle: Text("Details about Location A"),
+                      title: Text("Pickup From"),
+                      subtitle: Text(source ?? 'Loading...'),
                     ),
                     ListTile(
-                      title: Text("Location B"),
-                      subtitle: Text("Details about Location B"),
+                      title: Text("Drop Off to"),
+                      subtitle: Text(
+                        destination ?? 'Loading...',
+                        maxLines: null, // allow unlimited lines
+                        overflow: TextOverflow.visible, // show full text
+                        softWrap: true,
+                      ),
                     ),
-                    // Add more content as needed
+                    // Spacer(),
+                    Container(
+                      padding: EdgeInsets.all(15),
+                      child: Align(
+                        alignment: Alignment.bottomRight,
+                        child: Fab(
+                          onPressed:
+                              () => Navigator.pushNamed(
+                                context,
+                                "/publishride/traveldate",
+                              ),
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               );
