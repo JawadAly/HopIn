@@ -1,5 +1,5 @@
 import 'dart:convert';
-
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
 // import 'package:geocode/geocode.dart';
@@ -30,13 +30,10 @@ import 'package:http/http.dart' as http;
 //   }
 // }
 
-import 'package:hopin/apiservices/apiconstants.dart';
-
 final baseURL = 'https://maps.googleapis.com/maps/api/geocode/json';
+final String? apiKey = dotenv.env['GOOGLE_API_KEY'];
 
 Future<LatLng?> getLocLatLngs(String incommingAddress) async {
-  const apiKey = googleApiKey;
-
   final encodedAddress = Uri.encodeComponent(incommingAddress);
   final requestUrl = '$baseURL?address=$encodedAddress&key=$apiKey';
 
@@ -63,7 +60,6 @@ Future<LatLng?> getLocLatLngs(String incommingAddress) async {
 }
 
 Future<String?> getLocAddress(LatLng coords) async {
-  const apiKey = googleApiKey;
   final requestUrl =
       '$baseURL?latlng=${coords.latitude},${coords.longitude}&key=$apiKey';
 

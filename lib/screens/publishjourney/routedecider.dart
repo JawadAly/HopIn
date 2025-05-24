@@ -10,7 +10,7 @@ import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:hopin/widgets/backiconbtn.dart';
 import 'package:provider/provider.dart';
 import 'package:toastification/toastification.dart';
-import '../../apiservices/apiconstants.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class Routedecider extends StatefulWidget {
   const Routedecider({super.key});
@@ -20,6 +20,7 @@ class Routedecider extends StatefulWidget {
 }
 
 class _RoutedeciderState extends State<Routedecider> {
+  final String? googleApiKey = dotenv.env['GOOGLE_API_KEY'];
   final Completer<GoogleMapController> _controller = Completer();
 
   static const LatLng _sourceCoords = LatLng(24.899994, 67.168259);

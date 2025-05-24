@@ -13,6 +13,7 @@ import 'package:hopin/widgets/input.dart';
 import 'package:uuid/uuid.dart';
 import 'package:http/http.dart' as http;
 import '../models/citiesList.dart' as incomingCities;
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class LocationProvider extends StatefulWidget {
   final Function? dataModifier;
@@ -31,7 +32,7 @@ class LocationProvider extends StatefulWidget {
 }
 
 class _LocationProviderState extends State<LocationProvider> {
-  final String placesApiKey = "AIzaSyDka4PPf7zeibyuQF8ljeTVVUsf3rCOK4o";
+  final String? placesApiKey = dotenv.env['GOOGLE_API_KEY'];
   var uuid = Uuid();
   String? _sessionToken;
   List<dynamic> placesList = [];
