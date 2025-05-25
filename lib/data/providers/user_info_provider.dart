@@ -2,43 +2,47 @@ import 'package:flutter/material.dart';
 
 class UserInfoProvider extends ChangeNotifier {
   UserInfoProvider({
+    this.userId = '',
     this.firstName = '',
     this.lastName = '',
     this.email = '',
-    this.password = '',
-    this.receiveEmailUpdates = false,
+    
   });
 
+  String userId;
   String firstName;
   String lastName;
   String email;
-  String password;
-  bool receiveEmailUpdates;
 
-  void updateFirstName({required String value}) async {
+
+  void updateUserId({required String value}) {
+    userId = value;
+    notifyListeners();
+  }
+
+  void updateFirstName({required String value}) {
     firstName = value;
     notifyListeners();
   }
 
-  void updateLastName({required String value}) async {
+  void updateLastName({required String value}) {
     lastName = value;
     notifyListeners();
   }
 
-  void updateEmail({required String value}) async {
+  void updateEmail({required String value}) {
     email = value;
     notifyListeners();
   }
 
-  void updatePassword({required String value}) async {
-    password = value;
-    notifyListeners();
-  }
 
-  printInfo() {
-    print(firstName);
-    print(lastName);
-    print(email);
-    print(password);
-  }
+  Map<String, dynamic> getUserInfo() {
+    return {
+      'userId': userId,
+      'userFirstName': firstName,
+      'userLastName': lastName,
+      'userEmail': email,
+    };
+  } 
+
 }
