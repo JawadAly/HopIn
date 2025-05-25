@@ -4,6 +4,7 @@ import 'package:hopin/widgets/fab.dart';
 import 'package:hopin/widgets/input.dart';
 import 'package:provider/provider.dart';
 import 'package:hopin/data/providers/user_info_provider.dart';
+import 'package:hopin/apiservices/authServices/user_api_service.dart';
 
 class SignUpPassword extends StatefulWidget {
   const SignUpPassword({super.key});
@@ -52,57 +53,79 @@ class _SignUpPasswordState extends State<SignUpPassword> {
                 changeSenseFunc: (field, value) {
                   context.read<UserInfoProvider>().updatePassword(value: value);
                 },
-                validatorFunc: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your password';
-                  }
-                  if (value.length < 8) {
-                    return 'Password must be at least 8 characters';
-                  }
-                  if (!RegExp(r'[A-Za-z]').hasMatch(value)) {
-                    return 'Password must contain at least one letter';
-                  }
-                  if (!RegExp(r'\d').hasMatch(value)) {
-                    return 'Password must contain at least one number';
-                  }
-                  if (!RegExp(r'[!@#$%^&*(),.?":{}|<>]').hasMatch(value)) {
-                    return 'Password must contain at least one special character';
-                  }
-                  return null;
-                },
+                validatorFunc: (value) => passwordValidation(value),
               ),
               const Spacer(),
               Align(
                 alignment: Alignment.bottomRight,
 
-                child: Fab(
-                  onPressed: () {
-                    if (_formKey.currentState!.validate()) {
-                      authService.value
-                          .signUp(
-                            email: context.read<UserInfoProvider>().email,
-                            password: context.read<UserInfoProvider>().password,
-                          )
-                          .then((value) {
-                            if (!context.mounted) return;
-                            Navigator.pushNamed(context, '/home');
-                          })
-                          .catchError((error) {
-                            if (!context.mounted) return;
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text(error.toString())),
-                            );
-                          });
-                      Navigator.pushNamed(context, '/login');
-                      context.read<UserInfoProvider>().printInfo();
-                    }
-                  },
-                ),
+                child: Fab(onPressed: userRegistration),
               ),
             ],
           ),
         ),
       ),
     );
+  }
+
+  passwordValidation(value) {
+    if (value == null || value.isEmpty) {
+      return 'Please enter your password';
+    }
+    if (value.length < 8) {
+      return 'Password must be at least 8 characters';
+    }
+    if (!RegExp(r'[A-Za-z]').hasMatch(value)) {
+      return 'Password must contain at least one letter';
+    }
+    if (!RegExp(r'\d').hasMatch(value)) {
+      return 'Password must contain at least one number';
+    }
+    if (!RegExp(r'[!@#$%^&*(),.?":{}|<>]').hasMatch(value)) {
+      return 'Password must contain at least one special character';
+    }
+    return null;
+  }
+
+  userRegistration() async {
+    if (_formKey.currentState!.validate()) {
+      final userProvider = context.read<UserInfoProvider>();
+      final auth = authService.value;
+      final api = UserApiService();
+
+      try {
+        // Step 1: Register on Firebase
+        await auth.signUp(
+          email: userProvider.email,
+          password: userProvider.password,
+        );
+
+        userProvider.updateUserId(value: auth.currentUser!.uid);
+
+        // Step 2: Register on your own API
+        await api.registerUser(userProvider.getUserInfo());
+
+        // Step 3: Navigate to home if both succeed
+        if (!mounted) return;
+        Navigator.pushNamed(context, '/home');
+      } catch (e) {
+        print('Error: $e');
+
+        // Rollback Firebase user
+        try {
+          await authService.value.deleteAccount(
+            email: userProvider.email,
+            password: userProvider.password,
+          );
+        } catch (deleteError) {
+          print('Rollback failed: $deleteError');
+        }
+        if (!mounted) return;
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error: $e')));
+      }
+      userProvider.printInfo();
+    }
   }
 }
