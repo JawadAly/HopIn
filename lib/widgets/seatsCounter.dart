@@ -1,13 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:hopin/models/searchridesmodel.dart';
+import 'package:hopin/widgets/fab.dart';
+import 'package:hopin/widgets/toastprovider.dart';
+import 'package:provider/provider.dart';
+import 'package:toastification/toastification.dart';
 
 class Seatscounter extends StatefulWidget {
-  final int? initialPCount;
+  // final int? initialPCount;
   final Function? countModifierFunc;
   final String? hintVal;
   final dynamic controler;
   const Seatscounter({
     super.key,
-    this.initialPCount,
+    // this.initialPCount,
     this.countModifierFunc,
     this.hintVal,
     this.controler,
@@ -21,7 +26,8 @@ class _SeatscounterState extends State<Seatscounter> {
   @override
   void initState() {
     super.initState();
-    countVal = widget.initialPCount ?? 1;
+    countVal = int.parse(widget.controler.text);
+    // countVal = widget.initialPCount ?? 1;
   }
 
   @override
@@ -36,6 +42,10 @@ class _SeatscounterState extends State<Seatscounter> {
             SizedBox(height: 20),
             IconButton(
               onPressed: () {
+                Provider.of<Searchridesmodel>(
+                  context,
+                  listen: false,
+                ).updatePassengerCount(countVal!);
                 widget.countModifierFunc!(widget.hintVal, countVal);
                 Navigator.pop(context);
               },
@@ -53,16 +63,18 @@ class _SeatscounterState extends State<Seatscounter> {
               readOnly: true,
               textAlign: TextAlign.center,
               controller: widget.controler,
+              style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold),
               decoration: InputDecoration(
-                hintText: countVal.toString(),
-                hintStyle: TextStyle(fontSize: 40, fontWeight: FontWeight.bold),
+                // hintText: widget.controler.text,
+                // hintStyle: TextStyle(fontSize: 40, fontWeight: FontWeight.bold),
                 enabledBorder: OutlineInputBorder(borderSide: BorderSide.none),
                 focusedBorder: OutlineInputBorder(borderSide: BorderSide.none),
-                prefixIcon: IconButton(
+                suffixIcon: IconButton(
                   onPressed: () {
                     setState(() {
                       countVal = countVal! + 1;
                     });
+                    widget.controler.text = countVal.toString();
                   },
                   icon: Icon(
                     Icons.add_circle_outline_rounded,
@@ -70,11 +82,20 @@ class _SeatscounterState extends State<Seatscounter> {
                   ),
                   iconSize: 35,
                 ),
-                suffixIcon: IconButton(
+                prefixIcon: IconButton(
                   onPressed: () {
                     setState(() {
-                      countVal! > 1 ? countVal = countVal! - 1 : 1;
+                      if (countVal! > 1) {
+                        countVal = countVal! - 1;
+                      } else {
+                        showCustomToast(
+                          "Error",
+                          "Passengers cannot be less then zero!",
+                          ToastificationType.error,
+                        );
+                      }
                     });
+                    widget.controler.text = countVal.toString();
                   },
                   icon: Icon(
                     Icons.remove_circle_outline_outlined,
@@ -82,6 +103,20 @@ class _SeatscounterState extends State<Seatscounter> {
                   ),
                   iconSize: 35,
                 ),
+              ),
+            ),
+            Spacer(),
+            Align(
+              alignment: Alignment.bottomRight,
+              child: Fab(
+                onPressed:
+                    () => {
+                      Provider.of<Searchridesmodel>(
+                        context,
+                        listen: false,
+                      ).updatePassengerCount(countVal!),
+                      Navigator.pop(context),
+                    },
               ),
             ),
           ],

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hopin/data/providers/user_info_provider.dart';
+import 'package:hopin/models/searchridesmodel.dart';
 import 'package:provider/provider.dart';
 import './screens/spashscreen.dart';
 import 'package:hopin/screens/publishjourney/publishridemodel.dart';
@@ -20,6 +21,7 @@ void main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => Publishridemodel()),
+        ChangeNotifierProvider(create: (_) => Searchridesmodel()),
         ChangeNotifierProvider(create: (context) => UserInfoProvider()),
       ],
       child: ToastificationWrapper(child: MyApp()),
