@@ -72,6 +72,8 @@ class _LocationProviderState extends State<LocationProvider> {
     if (response.statusCode == 200) {
       var data = jsonDecode(response.body);
       List predictions = data["predictions"];
+      if (!mounted) return; // ✅ Check here
+
       setState(() {
         placesList =
             predictions.map((item) {

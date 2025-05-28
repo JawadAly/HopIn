@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import './searchrides.dart';
 import 'publishrideswrapper.dart';
 import 'profile/profile.dart';
-import './myrides.dart';
+import 'myRides/myrides.dart';
 import 'inbox/inbox.dart';
 
 //widgets

@@ -20,6 +20,8 @@ class _DropoffState extends State<Dropoff> {
 
   void nextStepFunc() {
     if (_dropOffGlobalKey.currentState!.validate()) {
+      // Ensure the latest text from controller is saved
+      dropOffLoc = dropOffController.text;
       Provider.of<Publishridemodel>(
         context,
         listen: false,
@@ -71,7 +73,12 @@ class _DropoffState extends State<Dropoff> {
                     ),
                   );
                 },
-                changeSenseFunc: () {},
+                changeSenseFunc: (val) {
+                  setState(() {
+                    dropOffLoc = val;
+                  });
+                },
+
                 validatorFunc: (String incomingVal) {
                   return incomingVal.isEmpty
                       ? "Drop-off location is required"

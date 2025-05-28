@@ -3,7 +3,7 @@ import 'package:hopin/screens/auth/auth_service.dart';
 import 'package:hopin/widgets/fab.dart';
 import 'package:hopin/widgets/input.dart';
 import 'package:provider/provider.dart';
-import 'package:hopin/data/providers/user_info_provider.dart';
+import 'package:hopin/data/providers/user_registration_info_provider.dart';
 import 'package:hopin/apiservices/authServices/user_api_service.dart';
 
 class SignUpPassword extends StatefulWidget {

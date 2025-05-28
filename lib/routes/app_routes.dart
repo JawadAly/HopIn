@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:hopin/models/ride.dart';
+import 'package:hopin/screens/myRides/ride_details_page.dart';
 import 'package:hopin/screens/publishjourney/dropoff.dart';
 import 'package:hopin/screens/publishjourney/journeyfinalizer.dart';
 import 'package:hopin/screens/publishjourney/passengercounter.dart';
@@ -53,6 +55,9 @@ Route<dynamic>? generateRoute(RouteSettings settings) {
       return MaterialPageRoute(builder: (_) => Login());
     case '/home':
       return MaterialPageRoute(builder: (_) => Home());
+    case '/ride/details':
+      final ride = settings.arguments as Ride;
+      return MaterialPageRoute(builder: (_) => RideDetailsPage(ride: ride));
     case '/about_you/personal_details':
       return MaterialPageRoute(builder: (_) => PersonalDetails());
     case '/about_you/mini_bio':

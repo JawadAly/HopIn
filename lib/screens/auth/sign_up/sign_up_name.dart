@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hopin/widgets/fab.dart';
 import 'package:hopin/widgets/input.dart';
-import 'package:hopin/data/providers/user_info_provider.dart';
+import 'package:hopin/data/providers/user_registration_info_provider.dart';
 import 'package:provider/provider.dart';
 
 class SignUpName extends StatefulWidget {
