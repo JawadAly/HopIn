@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 class UserInfoProvider extends ChangeNotifier {
   UserInfoProvider({
+    this.userId = '',
     this.firstName = '',
     this.lastName = '',
     this.email = '',
@@ -9,11 +10,17 @@ class UserInfoProvider extends ChangeNotifier {
     this.receiveEmailUpdates = false,
   });
 
+  String userId;
   String firstName;
   String lastName;
   String email;
   String password;
   bool receiveEmailUpdates;
+
+  void updateUserId({required String value}) async {
+    userId = value;
+    notifyListeners();
+  }
 
   void updateFirstName({required String value}) async {
     firstName = value;
@@ -40,5 +47,16 @@ class UserInfoProvider extends ChangeNotifier {
     print(lastName);
     print(email);
     print(password);
+  }
+
+  getUserInfo() {
+    Map<String, dynamic> userInfo = {
+      'userId': userId,
+      'userFirstName': firstName,
+      'userLastName': lastName,
+      'userEmail': email,
+      'receiveEmailUpdates': receiveEmailUpdates,
+    };
+    return userInfo;
   }
 }
