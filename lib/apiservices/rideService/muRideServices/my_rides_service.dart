@@ -1,9 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:http/http.dart' as http;
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'dart:convert';
 
 class MyRidesService {
-  final String baseUrl = 'http://192.168.100.4:5000/api/rides';
+  final String baseUrl = '${dotenv.env['SERVER_BASE_URL']}/rides';
 
   Future<List<dynamic>> getMyPublishedRides(String userId) async {
     final url = Uri.parse('$baseUrl/getpublishedRides/$userId');

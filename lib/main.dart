@@ -51,7 +51,8 @@ class MyAppState extends State<MyApp> {
         ),
         textTheme: GoogleFonts.poppinsTextTheme(),
       ),
-      home: Home(),
+      home: Splashscreen(),
+      // home: Home(),
       onGenerateRoute: generateRoute,
     );
   }

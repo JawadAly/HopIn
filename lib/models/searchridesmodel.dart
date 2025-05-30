@@ -59,4 +59,32 @@ class Searchridesmodel extends ChangeNotifier {
     passengerCount = incomingVal;
     notifyListeners();
   }
+
+  Map<String, dynamic> toJson() {
+    final isoString = travelDate!.toUtc().toIso8601String();
+    return {
+      "startLocation": _pickupLocation ?? "",
+      "startCoordinates": {
+        "latitude": _pickupLocationCoordinates?.latitude ?? 0.0,
+        "longitude": _pickupLocationCoordinates?.longitude ?? 0.0,
+      },
+      "endLocation": _dropOffLocation ?? "",
+      "endCoordinates": {
+        "latitude": _dropOffLocationCoordinates?.latitude ?? 0.0,
+        "longitude": _dropOffLocationCoordinates?.longitude ?? 0.0,
+      },
+      "rideDate": isoString ?? "",
+      "reqSeats": passengerCount ?? 1,
+    };
+  }
+
+  void printData() {
+    print("Pickup Location: $_pickupLocation");
+    print("Pickup Coordinates: $_pickupLocationCoordinates");
+    print("Dropoff Location: $_dropOffLocation");
+    print("Dropoff Coordinates: $_dropOffLocationCoordinates");
+    print("Travel Date: $travelDate");
+    print("Travel Time: $travelTime");
+    print("Passenger Count: $passengerCount");
+  }
 }

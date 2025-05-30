@@ -1,7 +1,14 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:hopin/apiservices/rideService/generalRideService/grides.dart';
+import 'package:hopin/models/ride.dart';
+import 'package:hopin/models/searchridesmodel.dart';
 import 'package:hopin/widgets/anotherInput.dart';
 import 'package:hopin/widgets/searchlocationprovider.dart';
 import 'package:hopin/widgets/seatsCounter.dart';
+import 'package:hopin/widgets/toastprovider.dart';
+import 'package:provider/provider.dart';
+import 'package:toastification/toastification.dart';
 
 class Searchrides extends StatefulWidget {
   const Searchrides({super.key});
@@ -39,6 +46,10 @@ class _SearchridesState extends State<Searchrides> {
 
   DateTime? selectedDate;
   Future<void> _selectDate(BuildContext context) async {
+    final searchRideProvider = Provider.of<Searchridesmodel>(
+      context,
+      listen: false,
+    );
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: selectedDate ?? DateTime.now(),
@@ -48,8 +59,31 @@ class _SearchridesState extends State<Searchrides> {
     if (picked != null) {
       setState(() {
         selectedDate = picked;
+        searchRideProvider.updateTravelDate(picked);
         userRideSearchData["travelDate"] = picked;
       });
+    }
+  }
+
+  void getSearchedRides(BuildContext context) async {
+    final searchRideModel = context.read<Searchridesmodel>();
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid == null) {
+      showCustomToast(
+        "Unauthorized Access!",
+        "Unable to identify user.Please Login!",
+        ToastificationType.error,
+      );
+      return;
+    }
+    Grides gRideService = Grides();
+    var searchDataJson = searchRideModel.toJson();
+    print(searchDataJson);
+    try {
+      var result = await gRideService.getMatchedRides(searchDataJson);
+      print(result);
+    } catch (ex) {
+      showCustomToast("Error!", ex.toString(), ToastificationType.error);
     }
   }
 
@@ -202,7 +236,7 @@ class _SearchridesState extends State<Searchrides> {
                     SizedBox(
                       width: double.infinity,
                       child: FilledButton(
-                        onPressed: () => print(userRideSearchData),
+                        onPressed: () => getSearchedRides(context),
                         child: Text('Search'),
                       ),
                     ),

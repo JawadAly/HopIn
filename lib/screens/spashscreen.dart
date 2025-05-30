@@ -12,7 +12,8 @@ class Splashscreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return AnimatedSplashScreen(
       splash: Icon(Icons.directions_car, size: 70),
-      nextScreen: Auth(),
+      nextScreen: Home(),
+      // nextScreen: Auth(),
       splashTransition: SplashTransition.fadeTransition,
       pageTransitionType: PageTransitionType.fade,
     );
