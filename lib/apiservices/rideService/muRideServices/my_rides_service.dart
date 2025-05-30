@@ -15,6 +15,7 @@ class MyRidesService {
         try {
           final body = jsonDecode(response.body);
           if (body['success'] == true && body['data'] != null) {
+            print('API Response: ${response.body}');
             return body['data']; // This is the actual ride list
           } else {
             throw Exception('API did not return valid data: ${response.body}');

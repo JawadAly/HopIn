@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:hopin/apiservices/rideService/muRideServices/my_rides_service.dart';
@@ -14,12 +16,32 @@ class Myrides extends StatefulWidget {
 class _MyridesState extends State<Myrides> with SingleTickerProviderStateMixin {
   late TabController _tabController;
   late Future<List<Ride>> _publishedRidesFuture;
+  int _retryCount = 0;
+  final int _maxRetries = 3; // You can adjust the number of retries
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
-    _publishedRidesFuture = fetchPublishedRides();
+    _publishedRidesFuture = _fetchPublishedRidesWithRetry();
+  }
+
+  Future<List<Ride>> _fetchPublishedRidesWithRetry() async {
+    try {
+      return await fetchPublishedRides();
+    } catch (e) {
+      if (_retryCount < _maxRetries) {
+        _retryCount++;
+        print(
+          'Error fetching rides: $e. Retrying in 10 seconds (Attempt $_retryCount)...',
+        );
+        await Future.delayed(const Duration(seconds: 10));
+        return _fetchPublishedRidesWithRetry();
+      } else {
+        print('Max retries reached. Failed to fetch published rides: $e');
+        throw e; // Re-throw the error after max retries
+      }
+    }
   }
 
   Future<List<Ride>> fetchPublishedRides() async {
@@ -66,7 +88,6 @@ class _MyridesState extends State<Myrides> with SingleTickerProviderStateMixin {
             ),
           ],
         ),
-
         subtitle: Text('Date: ${formatDate(ride.rideDateTime)}'),
         trailing: Text(
           ride.status.name,
@@ -104,13 +125,13 @@ class _MyridesState extends State<Myrides> with SingleTickerProviderStateMixin {
         return RefreshIndicator(
           onRefresh: () async {
             setState(() {
-              _publishedRidesFuture = fetchPublishedRides();
+              _publishedRidesFuture = _fetchPublishedRidesWithRetry();
+              _retryCount = 0; // Reset retry count on manual refresh
             });
             await _publishedRidesFuture; // await completion so pull-to-refresh finishes
           },
           child: ListView.builder(
             physics: const AlwaysScrollableScrollPhysics(), // Add this line
-
             itemCount: rides.length,
             itemBuilder: (context, index) {
               return buildRideCard(rides[index]);
@@ -143,7 +164,7 @@ class _MyridesState extends State<Myrides> with SingleTickerProviderStateMixin {
               ),
             ),
             body: Padding(
-              padding: const EdgeInsets.all(20.0),
+              padding: const EdgeInsets.all(10.0),
               child: TabBarView(
                 controller: _tabController,
                 children: [
