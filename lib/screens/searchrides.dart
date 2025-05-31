@@ -1,7 +1,14 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:hopin/apiservices/rideService/generalRideService/grides.dart';
+import 'package:hopin/models/ride.dart';
+import 'package:hopin/models/searchridesmodel.dart';
 import 'package:hopin/widgets/anotherInput.dart';
-import 'package:hopin/widgets/locationprovider.dart';
+import 'package:hopin/widgets/searchlocationprovider.dart';
 import 'package:hopin/widgets/seatsCounter.dart';
+import 'package:hopin/widgets/toastprovider.dart';
+import 'package:provider/provider.dart';
+import 'package:toastification/toastification.dart';
 
 class Searchrides extends StatefulWidget {
   const Searchrides({super.key});
@@ -15,10 +22,21 @@ class Searchrides extends StatefulWidget {
 class _SearchridesState extends State<Searchrides> {
   Map<String, dynamic> userRideSearchData = {
     "Leaving from": "",
+    "leavingFromCoords": "",
     "Going to": "",
+    "goingToCoords": "",
     "travelDate": "",
-    "No. of Passengers": 1,
+    "No. of Passengers": "",
   };
+  final _pickUpControler = TextEditingController();
+  final _dropOffControler = TextEditingController();
+  final _passengersControler = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _passengersControler.text = "1";
+  }
 
   void modifyUserRideData(String field, dynamic incomingVal) {
     setState(() {
@@ -28,6 +46,10 @@ class _SearchridesState extends State<Searchrides> {
 
   DateTime? selectedDate;
   Future<void> _selectDate(BuildContext context) async {
+    final searchRideProvider = Provider.of<Searchridesmodel>(
+      context,
+      listen: false,
+    );
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: selectedDate ?? DateTime.now(),
@@ -37,8 +59,31 @@ class _SearchridesState extends State<Searchrides> {
     if (picked != null) {
       setState(() {
         selectedDate = picked;
+        searchRideProvider.updateTravelDate(picked);
         userRideSearchData["travelDate"] = picked;
       });
+    }
+  }
+
+  void getSearchedRides(BuildContext context) async {
+    final searchRideModel = context.read<Searchridesmodel>();
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid == null) {
+      showCustomToast(
+        "Unauthorized Access!",
+        "Unable to identify user.Please Login!",
+        ToastificationType.error,
+      );
+      return;
+    }
+    Grides gRideService = Grides();
+    var searchDataJson = searchRideModel.toJson();
+    print(searchDataJson);
+    try {
+      var result = await gRideService.getMatchedRides(searchDataJson);
+      print(result);
+    } catch (ex) {
+      showCustomToast("Error!", ex.toString(), ToastificationType.error);
     }
   }
 
@@ -96,9 +141,7 @@ class _SearchridesState extends State<Searchrides> {
                       keyboardType: TextInputType.text,
                       hint: 'Leaving from',
                       textObscure: false,
-                      controler: TextEditingController(
-                        text: userRideSearchData["Leaving from"],
-                      ),
+                      controler: _pickUpControler,
                       changeSenseFunc: () {},
                       validatorFunc: () {},
                       prefIcon: Icon(Icons.circle_outlined),
@@ -109,9 +152,12 @@ class _SearchridesState extends State<Searchrides> {
                               context,
                               MaterialPageRoute(
                                 builder:
-                                    (context) => LocationProvider(
+                                    (context) => Searchlocationprovider(
+                                      hintText: "Leaving from",
                                       dataModifier: modifyUserRideData,
-                                      hintText: 'Leaving from',
+                                      controler: _pickUpControler,
+                                      submitionFunc:
+                                          (_) => Navigator.pop(context),
                                     ),
                               ),
                             ),
@@ -122,9 +168,7 @@ class _SearchridesState extends State<Searchrides> {
                       keyboardType: TextInputType.text,
                       hint: 'Going to',
                       textObscure: false,
-                      controler: TextEditingController(
-                        text: userRideSearchData["Going to"],
-                      ),
+                      controler: _dropOffControler,
                       changeSenseFunc: () {},
                       validatorFunc: () {},
                       prefIcon: Icon(Icons.circle_outlined),
@@ -135,9 +179,12 @@ class _SearchridesState extends State<Searchrides> {
                               context,
                               MaterialPageRoute(
                                 builder:
-                                    (context) => LocationProvider(
+                                    (context) => Searchlocationprovider(
+                                      hintText: "Going to",
                                       dataModifier: modifyUserRideData,
-                                      hintText: 'Going to',
+                                      controler: _dropOffControler,
+                                      submitionFunc:
+                                          (_) => Navigator.pop(context),
                                     ),
                               ),
                             ),
@@ -165,6 +212,7 @@ class _SearchridesState extends State<Searchrides> {
                       keyboardType: TextInputType.text,
                       hint: 'No. of Passengers',
                       textObscure: false,
+                      controler: _passengersControler,
                       changeSenseFunc: () {},
                       validatorFunc: () {},
                       prefIcon: Icon(Icons.person_outline),
@@ -175,9 +223,10 @@ class _SearchridesState extends State<Searchrides> {
                               builder:
                                   (context) => Seatscounter(
                                     countModifierFunc: modifyUserRideData,
-                                    hintVal: "No. of Passengers",
-                                    initialPCount:
-                                        userRideSearchData["No. of Passengers"],
+                                    hintVal: _passengersControler.text,
+                                    controler: _passengersControler,
+                                    // initialPCount:
+                                    //     userRideSearchData["No. of Passengers"],
                                   ),
                             ),
                           ),
@@ -187,7 +236,7 @@ class _SearchridesState extends State<Searchrides> {
                     SizedBox(
                       width: double.infinity,
                       child: FilledButton(
-                        onPressed: () => print(userRideSearchData),
+                        onPressed: () => getSearchedRides(context),
                         child: Text('Search'),
                       ),
                     ),

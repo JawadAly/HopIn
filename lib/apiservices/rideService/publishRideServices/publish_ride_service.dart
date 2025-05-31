@@ -1,8 +1,9 @@
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class PublishRideService {
-  final String baseUrl = 'http://192.168.100.4:5000/api/rides';
+  final String baseUrl = '${dotenv.env['SERVER_BASE_URL']}/rides';
 
   Future<http.Response> publishRide(Map<String, dynamic> rideData) async {
     final url = Uri.parse(baseUrl);

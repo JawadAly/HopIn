@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_fonts/google_fonts.dart';
+// import 'package:hopin/data/providers/user_info_provider.dart';
+import 'package:hopin/models/searchridesmodel.dart';
 import 'package:hopin/data/providers/user_registration_info_provider.dart';
 import 'package:hopin/screens/home.dart';
 import 'package:provider/provider.dart';
@@ -21,6 +23,7 @@ void main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => Publishridemodel()),
+        ChangeNotifierProvider(create: (_) => Searchridesmodel()),
         ChangeNotifierProvider(create: (context) => UserInfoProvider()),
       ],
       child: ToastificationWrapper(child: MyApp()),
@@ -48,7 +51,8 @@ class MyAppState extends State<MyApp> {
         ),
         textTheme: GoogleFonts.poppinsTextTheme(),
       ),
-      home: Home(),
+      home: Splashscreen(),
+      // home: Home(),
       onGenerateRoute: generateRoute,
     );
   }
