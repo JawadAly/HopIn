@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 //screens
-import './searchrides.dart';
-import 'publishrideswrapper.dart';
+import 'searchRide/searchrides.dart';
+import 'publishjourney/publishrideswrapper.dart';
 import 'profile/profile.dart';
 import 'myRides/myrides.dart';
 import 'inbox/inbox.dart';

@@ -4,42 +4,15 @@ import 'package:intl/intl.dart'; // For formatting DateTime
 
 class RideDetailsPage extends StatelessWidget {
   final Ride ride;
+  final bool fromSearchResults;
+  final bool fromMyRides;
 
-  const RideDetailsPage({super.key, required this.ride});
-
-  void _showCancelConfirmation(BuildContext context) {
-    showDialog(
-      context: context,
-      builder:
-          (ctx) => AlertDialog(
-            title: const Text('Cancel Ride'),
-            content: const Text('Are you sure you want to cancel this ride?'),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(ctx).pop(),
-                child: const Text('No'),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.of(ctx).pop();
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Ride cancelled successfully'),
-                    ),
-                  );
-                  Navigator.of(context).pop();
-                  // TODO: Backend/API call to cancel the ride
-                },
-                child: const Text('Yes, Cancel'),
-              ),
-            ],
-          ),
-    );
-  }
-
-  String formatDateTime(DateTime dateTime) {
-    return DateFormat('yyyy-MM-dd – kk:mm').format(dateTime);
-  }
+  const RideDetailsPage({
+    super.key,
+    required this.ride,
+    this.fromSearchResults = false,
+    this.fromMyRides = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -50,40 +23,25 @@ class RideDetailsPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'From: ${ride.startLocation}',
-              style: const TextStyle(fontSize: 18),
-            ),
-            Text(
-              'To: ${ride.endLocation}',
-              style: const TextStyle(fontSize: 18),
-            ),
-            Text(
-              'Date: ${formatDateTime(ride.rideDateTime)}',
-              style: const TextStyle(fontSize: 18),
-            ),
-            Text(
-              'Status: ${ride.status.name}',
-              style: const TextStyle(fontSize: 18),
-            ),
-            Text(
-              'Available Seats: ${ride.availableSeats}',
-              style: const TextStyle(fontSize: 18),
-            ),
-            Text(
-              'Price per Seat: Rs. ${ride.pricePerSeat.toStringAsFixed(2)}',
-              style: const TextStyle(fontSize: 18),
-            ),
-            const SizedBox(height: 24),
-            ElevatedButton.icon(
-              onPressed: () => _showCancelConfirmation(context),
-              icon: const Icon(Icons.cancel),
-              label: const Text('Cancel Ride'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.redAccent,
-                foregroundColor: Colors.white,
+            Text('From: ${ride.startLocation}'),
+            Text('To: ${ride.endLocation}'),
+            Text('Status: ${ride.status.name}'),
+            const SizedBox(height: 20),
+            if (fromSearchResults)
+              ElevatedButton(
+                onPressed: () {
+                  // Request ride logic
+                },
+                child: const Text('Request Ride'),
               ),
-            ),
+            if (fromMyRides)
+              ElevatedButton(
+                onPressed: () {
+                  // Cancel ride logic
+                },
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                child: const Text('Cancel Ride'),
+              ),
           ],
         ),
       ),

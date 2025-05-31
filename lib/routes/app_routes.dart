@@ -56,8 +56,19 @@ Route<dynamic>? generateRoute(RouteSettings settings) {
     case '/home':
       return MaterialPageRoute(builder: (_) => Home());
     case '/ride/details':
-      final ride = settings.arguments as Ride;
-      return MaterialPageRoute(builder: (_) => RideDetailsPage(ride: ride));
+      final args = settings.arguments as Map<String, dynamic>;
+      final ride = args['ride'] as Ride;
+      final bool fromSearchResults = args['fromSearchResults'] ?? false;
+      final bool fromMyRides = args['fromMyRides'] ?? false;
+      return MaterialPageRoute(
+        builder:
+            (_) => RideDetailsPage(
+              ride: ride,
+              fromSearchResults: fromSearchResults,
+              fromMyRides: fromMyRides,
+            ),
+      );
+
     case '/about_you/personal_details':
       return MaterialPageRoute(builder: (_) => PersonalDetails());
     case '/about_you/mini_bio':
