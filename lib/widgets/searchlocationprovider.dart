@@ -21,6 +21,7 @@ class Searchlocationprovider extends StatefulWidget {
   final String hintText;
   final dynamic controler;
   final dynamic submitionFunc;
+
   const Searchlocationprovider({
     super.key,
     required this.dataModifier,
@@ -28,6 +29,7 @@ class Searchlocationprovider extends StatefulWidget {
     this.controler,
     this.submitionFunc,
   });
+
   @override
   State<Searchlocationprovider> createState() => _SearchlocationproviderState();
 }
@@ -51,16 +53,6 @@ class _SearchlocationproviderState extends State<Searchlocationprovider> {
     getSuggestions(widget.controler.text);
   }
 
-  // void getSuggestions(String userInput) {
-  //   setState(() {
-  //     placesList =
-  //         incomingCities.placesList.where((place) {
-  //           return place.toLowerCase().contains(userInput.toLowerCase());
-  //         }).toList();
-  //   });
-  //   print(placesList);
-  // }
-
   void getSuggestions(String input) async {
     const String countryComponent = 'country:pk';
     const String karachiLocation = '24.8607,67.0011';
@@ -68,17 +60,17 @@ class _SearchlocationproviderState extends State<Searchlocationprovider> {
         'https://maps.googleapis.com/maps/api/place/autocomplete/json';
     String request =
         '$baseURL?input=$input&key=$placesApiKey&sessiontoken=$_sessionToken&components=$countryComponent&location=$karachiLocation';
+
     var response = await http.get(Uri.parse(request));
-    // print(response.body.toString());
+    if (!mounted) return;
+
     if (response.statusCode == 200) {
       var data = jsonDecode(response.body);
       List predictions = data["predictions"];
+      if (!mounted) return;
+
       setState(() {
-        placesList =
-            predictions.map((item) {
-              // return item["structured_formatting"]["main_text"];
-              return item["description"];
-            }).toList();
+        placesList = predictions.map((item) => item["description"]).toList();
       });
     } else {
       throw Exception('Failed to Load Places from Google Places API!');
@@ -91,29 +83,26 @@ class _SearchlocationproviderState extends State<Searchlocationprovider> {
     bool serviceEnabled;
     PermissionStatus permissionGranted;
     LocationData locationData;
+
     final searchRidesProvider = Provider.of<Searchridesmodel>(
       context,
       listen: false,
     );
 
-    //checking wether these services are enabled\
     serviceEnabled = await currentLoc.serviceEnabled();
     if (!serviceEnabled) {
       serviceEnabled = await currentLoc.requestService();
-      if (!serviceEnabled) {
-        return;
-      }
+      if (!serviceEnabled) return;
     }
+
     permissionGranted = await currentLoc.hasPermission();
     if (permissionGranted == PermissionStatus.denied) {
       permissionGranted = await currentLoc.requestPermission();
-      if (permissionGranted == PermissionStatus.denied) {
-        return;
-      }
+      if (permissionGranted == PermissionStatus.denied) return;
     }
 
     if (permissionGranted == PermissionStatus.deniedForever) {
-      // Show a dialog or redirect to settings
+      if (!mounted) return;
       showDialog(
         context: context,
         builder:
@@ -141,10 +130,8 @@ class _SearchlocationproviderState extends State<Searchlocationprovider> {
     }
 
     locationData = await currentLoc.getLocation();
-    // print(_locationData);
-    // generateAddressFromCoords(_locationData);
+    if (!mounted) return;
 
-    //setting current locationData
     if (widget.hintText == "Going to") {
       searchRidesProvider.updateDropoffLocCoord(
         LatLng(locationData.latitude!, locationData.longitude!),
@@ -153,17 +140,16 @@ class _SearchlocationproviderState extends State<Searchlocationprovider> {
         true,
         LatLng(locationData.latitude!, locationData.longitude!),
       );
-      Navigator.pop(context);
+      if (mounted) Navigator.pop(context);
     } else {
       searchRidesProvider.updatePickupLocCoord(
         LatLng(locationData.latitude!, locationData.longitude!),
       );
-
       await executeReverseGeoCoding(
         false,
         LatLng(locationData.latitude!, locationData.longitude!),
       );
-      Navigator.pop(context);
+      if (mounted) Navigator.pop(context);
     }
   }
 
@@ -173,11 +159,9 @@ class _SearchlocationproviderState extends State<Searchlocationprovider> {
       listen: false,
     );
     LatLng? incomingLoc = await getLocLatLngs(incomingAddress);
-    if (incomingLoc == null) {
-      return;
-    }
-    // print(incomingLoc);
-    // print(widget.hintText);
+    if (!mounted) return;
+    if (incomingLoc == null) return;
+
     if (widget.hintText == "Going to") {
       searchRidesProvider.updateDropoffLocCoord(incomingLoc);
       searchRidesProvider.updateDropoffLoc(incomingAddress);
@@ -194,59 +178,28 @@ class _SearchlocationproviderState extends State<Searchlocationprovider> {
     );
     try {
       var result = await getLocAddress(coords);
+      if (!mounted) return;
+
       if (result == null) {
         showCustomToast(
           "Error!",
-          "Locations Serivces down try again later",
+          "Locations Services down. Try again later",
           ToastificationType.error,
         );
         return;
       }
-      print(result);
       if (isDropOff) {
         searchRidesProvider.updateDropoffLoc(result);
       } else {
         searchRidesProvider.updatePickupLoc(result);
       }
+
       widget.controler.text = result;
     } catch (e) {
+      if (!mounted) return;
       showCustomToast("Error!", e.toString(), ToastificationType.error);
     }
   }
-
-  // void generateAddressFromCoords(LocationData incomingLocData) async {
-  //   try {
-  //     final String incomingAddress = await getAddressFromCoords(
-  //       incomingLocData.latitude!,
-  //       incomingLocData.longitude!,
-  //     );
-  //     if (incomingAddress == "Address not found for given coordinates.") {
-  //       showCustomToast(
-  //         "Inaccurate Location",
-  //         "Error fetching location please move to a different location and then try again!",
-  //         ToastificationType.error,
-  //       );
-  //       return;
-  //     } else if (incomingAddress ==
-  //         "Throttled! See geocode.xyz/pricing, Throttled! See geocode.xyz/pricing, Throttled! See geocode.xyz/pricing") {
-  //       showCustomToast(
-  //         "Please Wait!",
-  //         "Location services exhausted! Please wait a bit then try again or else search location manually.",
-  //         ToastificationType.error,
-  //       );
-  //     } else {
-  //       //setting current locationData
-  //       print(incomingAddress);
-  //       widget.controler.text = incomingAddress;
-  //     }
-  //   } catch (e) {
-  //     showCustomToast(
-  //       "Error getting current location",
-  //       "Error: $e",
-  //       ToastificationType.error,
-  //     );
-  //   }
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -300,14 +253,10 @@ class _SearchlocationproviderState extends State<Searchlocationprovider> {
                   return Column(
                     children: [
                       ListTile(
-                        onTap:
-                            () => {
-                              widget.controler.text =
-                                  placesList[index].toString(),
-                              getAndUpdateLatLngs(placesList[index].toString()),
-                            },
-
-                        // title: Text(placesList[index]['description']),
+                        onTap: () {
+                          widget.controler.text = placesList[index].toString();
+                          getAndUpdateLatLngs(placesList[index].toString());
+                        },
                         title: Text(placesList[index].toString()),
                         trailing: Icon(
                           Icons.arrow_forward_ios,
@@ -322,7 +271,7 @@ class _SearchlocationproviderState extends State<Searchlocationprovider> {
                       Divider(
                         color: Colors.grey.shade300,
                         thickness: 1,
-                        height: 0, // To keep it snug
+                        height: 0,
                       ),
                     ],
                   );

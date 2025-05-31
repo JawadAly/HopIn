@@ -81,7 +81,11 @@ class _MyridesState extends State<Myrides> with SingleTickerProviderStateMixin {
           ),
         ),
         onTap: () {
-          Navigator.pushNamed(context, '/ride/details', arguments: ride);
+          Navigator.pushNamed(
+            context,
+            '/ride/details',
+            arguments: {'ride': ride, 'fromMyRides': true},
+          );
         },
       ),
     );

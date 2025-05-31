@@ -1,8 +1,12 @@
+import 'dart:convert';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:hopin/apiservices/rideService/generalRideService/grides.dart';
 import 'package:hopin/models/ride.dart';
+import 'package:hopin/models/ride_with_username.dart';
 import 'package:hopin/models/searchridesmodel.dart';
+import 'package:hopin/screens/searchRide/search_results_screen.dart';
 import 'package:hopin/widgets/anotherInput.dart';
 import 'package:hopin/widgets/searchlocationprovider.dart';
 import 'package:hopin/widgets/seatsCounter.dart';
@@ -78,10 +82,39 @@ class _SearchridesState extends State<Searchrides> {
     }
     Grides gRideService = Grides();
     var searchDataJson = searchRideModel.toJson();
-    print(searchDataJson);
+    print("Search Request JSON: $searchDataJson");
+
     try {
       var result = await gRideService.getMatchedRides(searchDataJson);
-      print(result);
+
+      if (result != null && result.body != null) {
+        final decoded = jsonDecode(result.body);
+
+        if (decoded["success"] == true && decoded["data"] != null) {
+          List<RideWithUsername> ridesWithUsernames =
+              (decoded["data"] as List)
+                  .map((entry) => RideWithUsername.fromJson(entry))
+                  .toList();
+
+          if (!mounted) return;
+
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder:
+                  (context) => SearchResultsScreen(
+                    ridesWithUsernames: ridesWithUsernames,
+                  ),
+            ),
+          );
+        } else {
+          showCustomToast(
+            "No rides",
+            decoded["message"] ?? "No rides matched your search.",
+            ToastificationType.info,
+          );
+        }
+      }
     } catch (ex) {
       showCustomToast("Error!", ex.toString(), ToastificationType.error);
     }
