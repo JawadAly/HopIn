@@ -1,8 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:hopin/apiservices/convos/chatservice.dart';
+import 'package:hopin/screens/inbox/chat.dart';
 import 'package:hopin/widgets/input.dart';
 import 'package:hopin/widgets/toastprovider.dart';
+import 'package:intl/intl.dart';
 import 'package:toastification/toastification.dart';
 
 class Inbox extends StatefulWidget {
@@ -14,47 +16,21 @@ class Inbox extends StatefulWidget {
 
 class _InboxState extends State<Inbox> {
   late Future<List<dynamic>> _inboxChatsFuture;
-  final List<Map<String, String>> conversations = [
-    {
-      "name": "Alice",
-      "lastMessage": "Hey, are you coming today?",
-      "time": "09:24 AM",
-    },
-    {
-      "name": "Bob",
-      "lastMessage": "Got the location. See you soon!",
-      "time": "08:15 AM",
-    },
-    {
-      "name": "Charlie",
-      "lastMessage": "Thanks for the ride!",
-      "time": "Yesterday",
-    },
-    {
-      "name": "Diana",
-      "lastMessage": "Sure, I can pick you up.",
-      "time": "2 days ago",
-    },
-  ];
-
-  List<Map<String, String>> filteredConversations = [];
+  List<Map<String, dynamic>> allConversations = [];
+  List<Map<String, dynamic>> filteredConversations = [];
 
   @override
   void initState() {
     super.initState();
-    // filteredConversations = conversations;
     _inboxChatsFuture = getInbxChats();
     loadFilteredConversations();
   }
 
-  filterConversations(String query) {
+  void filterConversations(String query) {
     final results =
-        filteredConversations
-            .where(
-              (convo) =>
-                  convo['name']!.toLowerCase().contains(query.toLowerCase()),
-            )
-            .toList();
+        allConversations.where((convo) {
+          return convo['name']!.toLowerCase().contains(query.toLowerCase());
+        }).toList();
 
     setState(() {
       filteredConversations = results;
@@ -71,13 +47,13 @@ class _InboxState extends State<Inbox> {
       );
       return [];
     }
+
     var chatsrvc = Chatservice();
     try {
       var result = await chatsrvc.getInboxChats(uid);
+      print('Inbox - getInbxChats - Result: $result'); // Log the raw result
       if (result['success'] == true && result['data'] != null) {
-        final List<dynamic> chats = result['data'];
-        print("Fetched Chats: $chats");
-        return chats;
+        return result['data'];
       } else {
         throw Exception(result['errorMsg'] ?? 'Failed to fetch chats.');
       }
@@ -87,57 +63,82 @@ class _InboxState extends State<Inbox> {
     }
   }
 
-  // Future<void> loadFilteredConversations() async {
-  //   final chats = await getInbxChats();
-
-  //   final List<Map<String, String>> mappedChats =
-  //       chats.map<Map<String, String>>((chat) {
-  //         return {
-  //           'chatId': chat['chatId']?.toString() ?? '',
-  //           'p1': chat['person1Id']?.toString() ?? '',
-  //           'p2': chat['person2Id']?.toString() ?? '',
-  //           'lastMessage': chat['chatMessages'][0]?.toString() ?? '',
-  //           'timestamp': chat['chatLastUpdated']?.toString() ?? '',
-  //         };
-  //       }).toList();
-
-  //   setState(() {
-  //     filteredConversations = mappedChats;
-  //   });
-  // }
   Future<void> loadFilteredConversations() async {
-    final chats = await getInbxChats();
+    final chats =
+        await _inboxChatsFuture; // Use the future to get the latest data
     final currentUserId = FirebaseAuth.instance.currentUser?.uid ?? '';
 
-    final List<Map<String, String>> mappedChats =
-        chats.map<Map<String, String>>((chat) {
+    print('Inbox - loadFilteredConversations - Raw Chats: $chats');
+
+    final List<Map<String, dynamic>> mappedChats =
+        chats.map<Map<String, dynamic>>((chat) {
           final person1 = chat['person1'];
           final person2 = chat['person2'];
 
-          // Determine who the "other" person is
           final otherUser =
               person1['userId'] == currentUserId ? person2 : person1;
-
-          // Get name
           final fullName =
               "${otherUser['userFirstName']} ${otherUser['userLastName']}";
+          final chatMessages = chat['chatMessages'] as List<dynamic>? ?? [];
 
-          // Get latest message
-          final chatMessages = chat['chatMessages'] as List<dynamic>;
-          final latestMessage =
-              chatMessages.isNotEmpty ? chatMessages.last['content'] ?? '' : '';
+          // Filter out system messages to get the latest user message
+          String latestUserMessage = '';
+          if (chatMessages.isNotEmpty) {
+            final latestMsg =
+                chatMessages.lastWhere(
+                      (msg) =>
+                          !(msg['content'] as String).startsWith(
+                            '[REQUEST_ACTION]|',
+                          ) &&
+                          msg['senderId'] != 'system',
+                      orElse: () => {'content': ''},
+                    )['content']
+                    as String? ??
+                '';
+            latestUserMessage = latestMsg;
+          }
+
+          final lastUpdated = chat['chatLastUpdated']?.toString() ?? '';
 
           return {
             'chatId': chat['chatId']?.toString() ?? '',
             'name': fullName,
-            'lastMessage': latestMessage,
-            'timestamp': chat['chatLastUpdated']?.toString() ?? '',
+            'lastMessage': latestUserMessage,
+            'timestamp': lastUpdated,
+            'fullChat': chat,
           };
         }).toList();
 
     setState(() {
+      allConversations = mappedChats;
       filteredConversations = mappedChats;
     });
+  }
+
+  Future<void> _handleRefresh() async {
+    setState(() {
+      _inboxChatsFuture =
+          getInbxChats(); // Re-trigger the future to fetch latest data
+    });
+    await _inboxChatsFuture; // Wait for the new data to load
+    await loadFilteredConversations(); // Re-process the fetched data
+  }
+
+  String formatTimestamp(DateTime? timestamp) {
+    if (timestamp == null) return '';
+
+    final now = DateTime.now();
+    final difference = now.difference(timestamp);
+
+    if (difference.inDays == 0) {
+      return DateFormat('h:mm a').format(timestamp);
+    } else if (difference.inDays == 1) {
+      return "Yesterday";
+    } else if (difference.inDays < 7) {
+      return DateFormat('EEE').format(timestamp);
+    } else {
+      return DateFormat('d MMM').format(timestamp);
+    }
   }
 
   @override
@@ -158,7 +159,7 @@ class _InboxState extends State<Inbox> {
               SizedBox(height: 20),
               Input(
                 keyboardType: TextInputType.name,
-                hint: "Example: Misbah",
+                hint: "Search by name",
                 textObscure: false,
                 changeSenseFunc: (field, value) {
                   filterConversations(value);
@@ -166,72 +167,77 @@ class _InboxState extends State<Inbox> {
                 validatorFunc: (value) {},
                 prefIcon: Icon(Icons.search_outlined),
               ),
+              SizedBox(height: 10),
               Expanded(
-                // child: ListView.builder(
-                //   itemCount: filteredConversations.length,
-                //   itemBuilder: (context, index) {
-                //     final convo = filteredConversations[index];
-                //     return ListTile(
-                //       leading: CircleAvatar(child: Text(convo['p1']![0])),
-                //       title: Text(
-                //         convo['p2']!,
-                //         style: TextStyle(fontWeight: FontWeight.bold),
-                //       ),
-                //       subtitle: Text(
-                //         convo['lastMessage']!,
-                //         maxLines: 1,
-                //         overflow: TextOverflow.ellipsis,
-                //       ),
-                //       trailing: Text(
-                //         convo['timestamp']!,
-                //         style: TextStyle(fontSize: 14, color: Colors.grey),
-                //       ),
-                //       onTap: () {
-                //         Navigator.pushNamed(
-                //           context,
-                //           '/inbox/chat',
-                //           arguments: convo['name'],
-                //         );
-                //       },
-                //       splashColor: Color.fromARGB(
-                //         255,
-                //         110,
-                //         78,
-                //         163,
-                //       ).withOpacity(0.2),
-                //       contentPadding: EdgeInsets.all(8),
-                //     );
-                //   },
-                // ),
-                child: ListView.builder(
-                  itemCount: filteredConversations.length,
-                  itemBuilder: (context, index) {
-                    final convo = filteredConversations[index];
-                    return ListTile(
-                      leading: CircleAvatar(child: Text(convo['name']![0])),
-                      title: Text(
-                        convo['name']!,
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      subtitle: Text(
-                        convo['lastMessage']!,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      trailing: Text(
-                        convo['timestamp']!,
-                        style: TextStyle(fontSize: 14, color: Colors.grey),
-                      ),
-                      onTap: () {
-                        Navigator.pushNamed(
-                          context,
-                          '/inbox/chat',
-                          arguments:
-                              convo['chatId'], // or pass whole convo if needed
+                child: RefreshIndicator(
+                  onRefresh: _handleRefresh,
+                  child: FutureBuilder<List<dynamic>>(
+                    future: _inboxChatsFuture,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return Center(child: CircularProgressIndicator());
+                      } else if (snapshot.hasError) {
+                        return Center(
+                          child: Text('Error loading chats: ${snapshot.error}'),
                         );
-                      },
-                    );
-                  },
+                      } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                        return Center(child: Text('No chats available.'));
+                      } else {
+                        return ListView.builder(
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          itemCount: filteredConversations.length,
+                          itemBuilder: (context, index) {
+                            final convo = filteredConversations[index];
+                            final timestamp = DateTime.tryParse(
+                              convo['timestamp'],
+                            );
+
+                            return ListTile(
+                              leading: CircleAvatar(
+                                child: Text(
+                                  convo['name']!.isNotEmpty
+                                      ? convo['name']![0]
+                                      : '?',
+                                ),
+                              ),
+                              title: Text(
+                                convo['name']!,
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                              subtitle: Text(
+                                convo['lastMessage']!,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              trailing: Text(
+                                formatTimestamp(timestamp),
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder:
+                                        (_) => Chat(
+                                          chat: convo['fullChat'],
+                                          currentUserId:
+                                              FirebaseAuth
+                                                  .instance
+                                                  .currentUser!
+                                                  .uid,
+                                        ),
+                                  ),
+                                );
+                              },
+                            );
+                          },
+                        );
+                      }
+                    },
+                  ),
                 ),
               ),
             ],

@@ -77,9 +77,7 @@ Route<dynamic>? generateRoute(RouteSettings settings) {
       return MaterialPageRoute(builder: (_) => TravelPreferences());
     case '/about_you/add_vehicle':
       return MaterialPageRoute(builder: (_) => AddVehicle());
-    case '/inbox/chat':
-      final name = settings.arguments as String;
-      return MaterialPageRoute(builder: (_) => Chat(name: name));
+
     default:
       return MaterialPageRoute(
         builder:
